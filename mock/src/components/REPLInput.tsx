@@ -20,7 +20,7 @@ export function REPLInput(props: REPLInputProps) {
   function handleClick() {
     setCount(count + 1);
     props.addToHistory(commandString);
-    console.log("click");
+    console.log("clicked");
   }
   /**
    * We suggest breaking down this component into smaller components, think about the individual pieces
