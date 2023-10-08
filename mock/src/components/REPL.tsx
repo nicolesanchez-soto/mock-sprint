@@ -17,7 +17,6 @@ export default function REPL() {
   // CHANGED
   const [history, setHistory] = useState<string[]>([]);
 
-  console.log("hello");
   const addToHistory = (command: string) => {
     setHistory([...history, command]);
   };
