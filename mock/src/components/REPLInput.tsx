@@ -1,4 +1,4 @@
-import "mock/src/styles/main.css";
+import "../styles/main.css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 
