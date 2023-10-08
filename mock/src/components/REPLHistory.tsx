@@ -8,11 +8,13 @@ interface REPLHistoryProps {
 export function REPLHistory(props: REPLHistoryProps) {
   return (
     <div className="repl-history">
-      {props.history.map((elem) => (
-        <p>{elem}</p>
-      ))}
-      {/* This is where command history will go */}
-      {/* TODO: To go through all the pushed commands... try the .map() function! */}
+      <pre>
+        {props.history.map((elem) => (
+          <p>{elem}</p>
+        ))}
+        {/* This is where command history will go */}
+        {/* TODO: To go through all the pushed commands... try the .map() function! */}
+      </pre>
     </div>
   );
 }
