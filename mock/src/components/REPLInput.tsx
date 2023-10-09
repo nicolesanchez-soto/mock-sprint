@@ -3,25 +3,22 @@ import { useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { cmds } from "./mockedJson";
 import { parsedCSV } from "./mockedData";
-import { parsedCSV2 } from "./mockedRIData";
 
 interface REPLInputProps {
   addToHistory: (command: JSX.Element) => void;
 }
 
 let brief: boolean = true;
-const dataMap = new Map([
-  ["simple.csv", parsedCSV],
-  ["ri_state_county.csv", parsedCSV2],
-]);
-const resultsMap: Map<String, string[][]> = new Map([
+const dataMap = new Map([["simple.csv", parsedCSV]]);
+let currentData: string[][] | null = null;
+
+const resultsMap: Map<string, string[][]> = new Map([
   ["Name Tim", [["Tim Nelson", "CSCI 0320", "instructor"]]],
   ["0 Vicky", [["Vicky Chen", "CSCI 0200", "student"]]],
   ["9 Vicky", [["0"]]], // use 0 to indicate invalid column identifier
   ["Nonexistent", [[""]]],
   ["1 Nonexistent", [[""]]],
 ]);
-let currentData: string[][] | null = null;
 
 export function REPLInput(props: REPLInputProps) {
   const [commandString, setCommandString] = useState<string>("");
@@ -67,49 +64,19 @@ export function REPLInput(props: REPLInputProps) {
         props.addToHistory(<p>No CSV loaded to view</p>);
       }
     } else if (commandString.startsWith("search")) {
-      if (!currentData) {
-        props.addToHistory(<p>No CSV loaded</p>);
-        return;
-      }
       const [, col, value] = commandString.split(" ");
-      //const searchResult = searchTable(col, value);
-
-      const result: string[][] = resultsMap.get(col + " " + value) || [[]];
-      if (result[0][0] == "0") {
-        if (brief) {
-          props.addToHistory(<p>Invalid column identifier</p>);
-        } else {
-          props.addToHistory(
-            <>
-              <p>{`Command: ${commandString}`}</p>
-              <p>{`Output: Invalid column identifier`}</p>
-            </>
-          );
-        }
-      } else if (result[0][0] == "") {
-        if (brief) {
-          props.addToHistory(<p>No matching rows</p>);
-        } else {
-          props.addToHistory(
-            <>
-              <p>{`Command: ${commandString}`}</p>
-              <p>{`Output: No matching rows`}</p>
-            </>
-          );
-        }
+      const searchResult = searchTable(col, value);
+      if (brief) {
+        props.addToHistory(searchResult);
       } else {
-        const searchResult: JSX.Element = createTable(result);
-        if (brief) {
-          props.addToHistory(searchResult);
-        } else {
-          props.addToHistory(
-            <>
-              <p>{`Command: ${commandString}`}</p>
-              <p>{`Output:`}</p>
-              {searchResult}
-            </>
-          );
-        }
+        props.addToHistory(
+          <>
+            <p>{`Command: ${commandString}`}</p>
+            <p>
+              {`Output:`} {searchResult}
+            </p>
+          </>
+        );
       }
     } else {
       const result = getResult(commandString);
@@ -143,6 +110,46 @@ export function REPLInput(props: REPLInputProps) {
         </thead>
         <tbody>
           {data.slice(1).map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  function searchTable(col: string, value: string): JSX.Element {
+    if (!currentData) return <p>No CSV loaded</p>;
+
+    const key = `${col} ${value}`;
+    const results = resultsMap.get(key);
+
+    // Handle invalid or no results
+    if (!results || results.length === 0 || results[0].length === 0) {
+      return <p>No matching rows found</p>;
+    }
+
+    // Check if the result indicates an invalid column identifier
+    if (results[0][0] === "0") {
+      return <p>Invalid column specified</p>;
+    }
+
+    // Convert the results to a table
+    return (
+      <table border={1} className="centered-table">
+        <thead>
+          <tr>
+            {currentData &&
+              currentData[0].map((header, index) => (
+                <th key={index}>{header}</th>
+              ))}
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex}>{cell}</td>
