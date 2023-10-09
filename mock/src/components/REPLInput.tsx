@@ -1,94 +1,90 @@
 import "../styles/main.css";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { cmds } from "./mockedJson";
 import { parsedCSV } from "./mockedData";
 
 interface REPLInputProps {
-  // TODO: Fill this with desired props... Maybe something to keep track of the submitted commands
-  // CHANGED
-  addToHistory: (command: string) => void;
+  addToHistory: (command: JSX.Element) => void;
 }
-//const commandsMap = new Map(Object.entries(JSON.stringify(mock.cmds)));
-let brief: boolean = true;
-const dataMap = new Map([["filepath1", parsedCSV]]);
-let table: string = "";
-// You can use a custom interface or explicit fields or both! An alternative to the current function header might be:
-// REPLInput(history: string[], setHistory: Dispatch<SetStateAction<string[]>>)
-export function REPLInput(props: REPLInputProps) {
-  // Remember: let React manage state in your webapp.
-  // Manages the contents of the input box
-  const [commandString, setCommandString] = useState<string>("");
-  // Manages the current amount of times the button is clicked
-  const [count, setCount] = useState<number>(0);
-  const [table, setTable] = useState<JSX.Element | null>(null);
 
-  // This function is triggered when the button is clicked.
+let brief: boolean = true;
+const dataMap = new Map([["simple.csv", parsedCSV]]);
+
+export function REPLInput(props: REPLInputProps) {
+  const [commandString, setCommandString] = useState<string>("");
+
   function handleClick() {
     if (commandString === "mode") {
-      brief = !brief; //flip brief switch
-      return;
-    } else if (commandString === "load_file") {
-      createTable(parsedCSV);
-      return;
-    }
-    if (brief) {
-      props.addToHistory(getResult(commandString));
-    } else {
+      brief = !brief;
       props.addToHistory(
-        "Command: " + commandString + "\nOutput: " + getResult(commandString)
+        <p>{brief ? "Switched to brief mode" : "Switched to verbose mode"}</p>
       );
+    } else if (commandString.startsWith("load_file")) {
+      const path = commandString.split(" ")[1];
+      const currentData = dataMap.get(path) || null;
+      if (currentData) {
+        props.addToHistory(<p>{`Loaded data from ${path}`}</p>);
+      } else {
+        props.addToHistory(<p>{"Invalid file path provided"}</p>);
+      }
+    } else if (commandString === "view") {
+      const table = createTable(dataMap.get("simple.csv")!);
+      if (brief) {
+        props.addToHistory(table);
+      } else {
+        props.addToHistory(
+          <>
+            <p>{`Command: ${commandString}`}</p>
+            {table}
+          </>
+        );
+      }
+    } else {
+      const result = getResult(commandString);
+      if (brief) {
+        props.addToHistory(<p>{result}</p>);
+      } else {
+        props.addToHistory(
+          <>
+            <p>{`Command: ${commandString}`}</p>
+            <p>{`Output: ${result}`}</p>
+          </>
+        );
+      }
     }
-    setCount(count + 1);
-    console.log("clicked");
   }
 
   function getResult(c: string) {
     const result = cmds.get(c);
-    if (result !== undefined) {
-      return result;
-    } else {
-      console.log("Command not found.");
-      return "Command not found.";
-    }
+    return result !== undefined ? result : "Command not found.";
   }
-  function createTable(data: string[][]) {
-    let header: string[] = data[0];
-    const tableJSX = (
-      <table border={1}>
+
+  function createTable(data: string[][]): JSX.Element {
+    return (
+      <table border={1} className="centered-table">
         <thead>
           <tr>
-            {header.map((col, index) => (
-              <th key={index}>{col}</th>
+            {data[0].map((header, index) => (
+              <th key={index}>{header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.slice(1).map((line, rowIndex) => (
+          {data.slice(1).map((row, rowIndex) => (
             <tr key={rowIndex}>
-              {line.map((elt, colIndex) => (
-                <td key={colIndex}>{elt}</td>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex}>{cell}</td>
               ))}
             </tr>
           ))}
         </tbody>
       </table>
     );
-
-    setTable(tableJSX);
   }
 
-  /**
-   * We suggest breaking down this component into smaller components, think about the individual pieces
-   * of the REPL and how they connect to each other...
-   */
   return (
     <div className="repl-input">
-      {table !== null ? table : null}
-      {/* This is a comment within the JSX. Notice that it's a TypeScript comment wrapped in
-            braces, so that React knows it should be interpreted as TypeScript */}
-      {/* I opted to use this HTML tag; you don't need to. It structures multiple input fields
-            into a single unit, which makes it easier for screenreaders to navigate. */}
       <fieldset>
         <legend>Enter a command:</legend>
         <ControlledInput
@@ -98,7 +94,7 @@ export function REPLInput(props: REPLInputProps) {
         />
       </fieldset>
 
-      <button onClick={() => handleClick()}>Submitted {count} times</button>
+      <button onClick={handleClick}>Submit</button>
     </div>
   );
 }
