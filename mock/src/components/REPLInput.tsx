@@ -18,15 +18,15 @@ export function REPLInput(props: REPLInputProps) {
     if (commandString === "mode") {
       brief = !brief;
       props.addToHistory(
-        <p>{brief ? "Switched to brief mode" : "Switched to verbose mode"}</p>
+        <p>{brief ? "Switched to brief mode." : "Switched to verbose mode."}</p>
       );
     } else if (commandString.startsWith("load_file")) {
       const path = commandString.split(" ")[1];
       const currentData = dataMap.get(path) || null;
       if (currentData) {
-        props.addToHistory(<p>{`Loaded data from ${path}`}</p>);
+        props.addToHistory(<p>{`Loaded data from ${path}.`}</p>);
       } else {
-        props.addToHistory(<p>{"Invalid file path provided"}</p>);
+        props.addToHistory(<p>{"Invalid file path provided."}</p>);
       }
     } else if (commandString === "view") {
       const table = createTable(dataMap.get("simple.csv")!);
