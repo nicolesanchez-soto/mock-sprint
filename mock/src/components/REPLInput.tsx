@@ -3,13 +3,24 @@ import { useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { cmds } from "./mockedJson";
 import { parsedCSV } from "./mockedData";
+import { parsedCSV2 } from "./mockedRIData";
 
 interface REPLInputProps {
   addToHistory: (command: JSX.Element) => void;
 }
 
 let brief: boolean = true;
-const dataMap = new Map([["simple.csv", parsedCSV]]);
+const dataMap = new Map([
+  ["simple.csv", parsedCSV],
+  ["ri_state_county.csv", parsedCSV2],
+]);
+const resultsMap: Map<String, string[][]> = new Map([
+  ["Name Tim", [["Tim Nelson", "CSCI 0320", "instructor"]]],
+  ["0 Vicky", [["Vicky Chen", "CSCI 0200", "student"]]],
+  ["9 Vicky", [["0"]]], // use 0 to indicate invalid column identifier
+  ["Nonexistent", [[""]]],
+  ["1 Nonexistent", [[""]]],
+]);
 let currentData: string[][] | null = null;
 
 export function REPLInput(props: REPLInputProps) {
@@ -56,18 +67,49 @@ export function REPLInput(props: REPLInputProps) {
         props.addToHistory(<p>No CSV loaded to view</p>);
       }
     } else if (commandString.startsWith("search")) {
+      if (!currentData) {
+        props.addToHistory(<p>No CSV loaded</p>);
+        return;
+      }
       const [, col, value] = commandString.split(" ");
-      const searchResult = searchTable(col, value);
-      if (brief) {
-        props.addToHistory(searchResult);
+      //const searchResult = searchTable(col, value);
+
+      const result: string[][] = resultsMap.get(col + " " + value) || [[]];
+      if (result[0][0] == "0") {
+        if (brief) {
+          props.addToHistory(<p>Invalid column identifier</p>);
+        } else {
+          props.addToHistory(
+            <>
+              <p>{`Command: ${commandString}`}</p>
+              <p>{`Output: Invalid column identifier`}</p>
+            </>
+          );
+        }
+      } else if (result[0][0] == "") {
+        if (brief) {
+          props.addToHistory(<p>No matching rows</p>);
+        } else {
+          props.addToHistory(
+            <>
+              <p>{`Command: ${commandString}`}</p>
+              <p>{`Output: No matching rows`}</p>
+            </>
+          );
+        }
       } else {
-        props.addToHistory(
-          <>
-            <p>{`Command: ${commandString}`}</p>
-            <p>{`Output:`}</p>
-            {searchResult}
-          </>
-        );
+        const searchResult: JSX.Element = createTable(result);
+        if (brief) {
+          props.addToHistory(searchResult);
+        } else {
+          props.addToHistory(
+            <>
+              <p>{`Command: ${commandString}`}</p>
+              <p>{`Output:`}</p>
+              {searchResult}
+            </>
+          );
+        }
       }
     } else {
       const result = getResult(commandString);
@@ -101,59 +143,6 @@ export function REPLInput(props: REPLInputProps) {
         </thead>
         <tbody>
           {data.slice(1).map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-
-  function searchTable(col: string, value: string): JSX.Element {
-    if (!currentData) return <p>No CSV loaded</p>;
-
-    const header = currentData[0];
-    let colIndex = -1;
-
-    // Check if col is a number
-    if (!isNaN(Number(col))) {
-      colIndex = Number(col);
-    } else {
-      // Check if col is a column name
-      // Convert both to lowercase for case-insensitive comparison
-      colIndex = header.map((h) => h.toLowerCase()).indexOf(col.toLowerCase());
-    }
-
-    if (colIndex === -1 || colIndex >= header.length) {
-      return <p>Invalid column specified</p>;
-    }
-
-    // Convert the value to lowercase for case-insensitive search
-    const lowerCaseValue = value.toLowerCase().trim();
-
-    // Filter rows based on whether the cell contains the search value
-    const matchingRows = currentData.filter((row) =>
-      row[colIndex].toLowerCase().includes(lowerCaseValue)
-    );
-
-    if (matchingRows.length === 0) {
-      return <p>No matching rows found</p>;
-    }
-
-    return (
-      <table border={1} className="centered-table">
-        <thead>
-          <tr>
-            {header.map((h, index) => (
-              <th key={index}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {matchingRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex}>{cell}</td>
