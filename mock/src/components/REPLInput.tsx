@@ -3,19 +3,36 @@ import { useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { cmds } from "./mockedJson";
 import { parsedCSV } from "./mockedData";
+import { parsedCSV2 } from "./mockedRIData";
 
 interface REPLInputProps {
   addToHistory: (command: JSX.Element) => void;
 }
 
 let brief: boolean = true;
-const dataMap = new Map([["simple.csv", parsedCSV]]);
+const dataMap = new Map([
+  ["simple.csv", parsedCSV],
+  ["ri_state_county.csv", parsedCSV2],
+]);
+
 let currentData: string[][] | null = null;
+let currentResultsMap: Map<string, string[][]> = new Map();
 
 const resultsMap: Map<string, string[][]> = new Map([
   ["Name Tim", [["Tim Nelson", "CSCI 0320", "instructor"]]],
   ["0 Vicky", [["Vicky Chen", "CSCI 0200", "student"]]],
   ["9 Vicky", [["0"]]], // use 0 to indicate invalid column identifier
+  ["Nonexistent", [[""]]],
+  ["1 Nonexistent", [[""]]],
+]);
+
+const resultsMap2: Map<string, string[][]> = new Map([
+  ["NAME Kings County, California", [["Kings County California", "06", "031"]]],
+  [
+    "0 Los Angeles County, California",
+    [["Los Angeles County California", "06", "037"]],
+  ],
+  ["6 Los Angeles County, California", [["0"]]], // use 0 to indicate invalid column identifier
   ["Nonexistent", [[""]]],
   ["1 Nonexistent", [[""]]],
 ]);
@@ -32,6 +49,14 @@ export function REPLInput(props: REPLInputProps) {
     } else if (commandString.startsWith("load_file")) {
       const path = commandString.split(" ")[1];
       currentData = dataMap.get(path) || null;
+      if (currentData) {
+        if (path === "simple.csv") {
+          currentResultsMap = resultsMap;
+        } else if (path === "ri_state_county.csv") {
+          currentResultsMap = resultsMap2;
+        }
+      }
+      console.log(currentResultsMap);
       if (currentData) {
         if (brief) {
           props.addToHistory(<p>{`Loaded data from ${path}`}</p>);
@@ -64,7 +89,9 @@ export function REPLInput(props: REPLInputProps) {
         props.addToHistory(<p>No CSV loaded to view</p>);
       }
     } else if (commandString.startsWith("search")) {
-      const [, col, value] = commandString.split(" ");
+      const [, col, ...valueParts] = commandString.split(" ");
+      const value = valueParts.join(" ");
+
       const searchResult = searchTable(col, value);
       if (brief) {
         props.addToHistory(searchResult);
@@ -124,8 +151,10 @@ export function REPLInput(props: REPLInputProps) {
   function searchTable(col: string, value: string): JSX.Element {
     if (!currentData) return <p>No CSV loaded</p>;
 
-    const key = `${col} ${value}`;
-    const results = resultsMap.get(key);
+    const key = col + " " + value;
+    console.log(key);
+    const results = currentResultsMap.get(key);
+    console.log(results);
 
     // Handle invalid or no results
     if (!results || results.length === 0 || results[0].length === 0) {
