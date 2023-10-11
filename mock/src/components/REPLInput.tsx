@@ -168,7 +168,7 @@ export function REPLInput(props: REPLInputProps) {
 
     // Convert the results to a table
     return (
-      <table border={1} className="centered-table">
+      <table data-test-id="output-table" border={1} className="centered-table">
         <thead>
           <tr>
             {currentData &&
@@ -201,7 +201,9 @@ export function REPLInput(props: REPLInputProps) {
         />
       </fieldset>
 
-      <button onClick={handleClick}>Submit</button>
+      <button test-id="button" onClick={handleClick}>
+        Submit
+      </button>
     </div>
   );
 }

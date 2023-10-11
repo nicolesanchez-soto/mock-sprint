@@ -18,6 +18,7 @@ export function ControlledInput({
 }: ControlledInputProps) {
   return (
     <input
+      data-testid="input"
       type="text"
       className="repl-command-box"
       value={value}

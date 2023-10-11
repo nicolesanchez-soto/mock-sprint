@@ -7,6 +7,7 @@ interface REPLHistoryProps {
 export function REPLHistory(props: REPLHistoryProps) {
   return (
     <div
+      data-testid="repl-history"
       className="repl-history"
       style={{ maxHeight: "300px", overflowY: "scroll" }}
     >
