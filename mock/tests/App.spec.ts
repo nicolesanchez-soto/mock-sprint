@@ -56,22 +56,6 @@ test("on page load, i see a button", async ({ page }) => {
   await expect(page.getByRole("button")).toBeVisible();
 });
 
-// This shouldn't pass because we got rid of incrementing
-test("after I click the button, its label increments", async ({ page }) => {
-  // TODO WITH TA: Fill this in to test your button counter functionality!
-  await page.goto("http://localhost:8000/");
-  await expect(
-    page.getByRole("button", { name: "Submitted 0 times" })
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Submitted 0 times" }).click();
-  await page.getByRole("button", { name: "Submitted 1 times" }).click();
-  await page.getByRole("button", { name: "Submitted 2 times" }).click();
-  await page.getByRole("button", { name: "Submitted 3 times" }).click();
-  await expect(
-    page.getByRole("button", { name: "Submitted 4 times" })
-  ).toBeVisible();
-});
-
 test("after I click the button, my command gets pushed, and the output displays in the brief mode", async ({
   page,
 }) => {
@@ -141,4 +125,124 @@ test("after loading CSV file, I can use the view command to see a table", async 
   await submitButton.click();
   await expect(page.getByTestId("output-table")).toBeVisible;
   // Add tests to check contents of table?
+});
+
+test("search without loading a CSV provides appropriate feedback", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").click();
+  await page.getByLabel("Command input").fill("search Name Tim");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText("No CSV loaded");
+});
+
+test("loading a non-existent file provides appropriate feedback", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").click();
+  await page.getByLabel("Command input").fill("load_file nonExistent.csv");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Invalid file path provided"
+  );
+});
+
+test("search for non-existent data provides appropriate feedback", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").click();
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").click();
+  await page.getByLabel("Command input").fill("search Nonexistent");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Loaded data from simple.csvNo matching rows found"
+  );
+});
+
+test("toggling between modes gives correct feedback", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Switched to verbose mode"
+  );
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Switched to verbose modeSwitched to brief mode"
+  );
+});
+
+test("entering multiple commands adds to REPL history", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  const commands = ["mode", "load_file simple.csv", "view"];
+  for (let cmd of commands) {
+    await page.getByLabel("Command input").fill(cmd);
+    await page.locator('button[test-id="button"]').click();
+  }
+  for (let cmd of commands) {
+    await expect(page.getByTestId("repl-history")).toContainText(cmd);
+  }
+});
+
+test("search with column identifier returns correct data", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("search Name Tim");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("output-table")).toBeVisible;
+});
+
+test("search with column identifier  and spacing returns correct data", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("search Name Tim Nelson");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("output-table")).toBeVisible;
+});
+
+test("invalid column identifier provides appropriate feedback", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("search 9 Vicky");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Loaded data from simple.csvInvalid column specified"
+  );
+});
+
+test("empty search command gives feedback", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("search");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Invalid search command"
+  );
+});
+
+test("REPL history is present upon load", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  const historyElement = await page.$('[data-testid="repl-history"]');
+  expect(historyElement).toBeTruthy();
+});
+
+test("unknown command gives feedback", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("unknownCmd");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Command not found."
+  );
 });

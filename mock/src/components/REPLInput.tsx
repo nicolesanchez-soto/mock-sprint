@@ -20,6 +20,7 @@ let currentResultsMap: Map<string, string[][]> = new Map();
 
 const resultsMap: Map<string, string[][]> = new Map([
   ["Name Tim", [["Tim Nelson", "CSCI 0320", "instructor"]]],
+  ["Name Tim Nelson", [["Tim Nelson", "CSCI 0320", "instructor"]]],
   ["0 Vicky", [["Vicky Chen", "CSCI 0200", "student"]]],
   ["9 Vicky", [["0"]]], // use 0 to indicate invalid column identifier
   ["Nonexistent", [[""]]],
@@ -91,6 +92,12 @@ export function REPLInput(props: REPLInputProps) {
     } else if (commandString.startsWith("search")) {
       const [, col, ...valueParts] = commandString.split(" ");
       const value = valueParts.join(" ");
+
+      // Check for empty search command
+      if (!col) {
+        props.addToHistory(<p>Invalid search command</p>);
+        return;
+      }
 
       const searchResult = searchTable(col, value);
       if (brief) {
