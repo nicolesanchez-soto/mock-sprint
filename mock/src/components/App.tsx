@@ -1,18 +1,28 @@
+// Importing necessary styles and components
 import "../styles/App.css";
 import REPL from "./REPL";
 
 /**
- * This is the highest level component!
+ * App Component
+ *
+ * This is the root component of the application.
+ * It renders the main layout and embeds the REPL component.
+ *
+ * @returns {React.Component} - Rendered component.
  */
 function App() {
   return (
     <div className="App">
-      <p className="App-header">
+      {/* Header section */}
+      <header className="App-header">
         <h1>Mock</h1>
-      </p>
+      </header>
+
+      {/* REPL Component for user interaction */}
       <REPL />
     </div>
   );
 }
 
+// Exporting App component for other components
 export default App;

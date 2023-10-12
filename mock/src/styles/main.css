@@ -1,40 +1,95 @@
-/*
-  This is a reasonable starting point for the CSS in Mock.
-  Positioning in CSS can sometimes be annoying to manage, so we've opted to 
-  give you this starter CSS. Feel free to modify it as you wish, though.
-*/
+/* Global Styles */
 
+/* Sets default styles for the entire page */
+body {
+  font-family: "Arial", sans-serif; /* Preferred font family */
+  background-color: #ffccff; /* Soft pastel pink background color */
+  color: #333; /* Default text color */
+  line-height: 1.6; /* Spacing between lines of text */
+}
+
+/* Header Styling */
+
+/* Styles for the header element with id "header" */
 #header {
-  text-align: center;
+  text-align: center; /* Center aligns text */
+  background: linear-gradient(
+    to right,
+    #ff88cc,
+    #6699ff
+  ); /* Pastel gradient background from pink to blue */
+  padding: 1rem; /* Padding around the header */
+  color: white; /* Text color for the header */
+  font-size: 1.5rem; /* Font size for the header text */
+  border-bottom: 3px solid #ffccff; /* Shiny border at the bottom of the header */
 }
 
+/* REPL (Read-Eval-Print Loop) Styles */
+
+/* Styles for the REPL container */
 .repl {
-  position: relative;
-  min-height: 95vh;
+  position: relative; /* Sets a relative positioning context for child elements */
+  min-height: 95vh; /* Minimum height of 95% of the viewport height */
+  padding: 1rem; /* Padding around the REPL container */
 }
 
+/* Styles for the REPL history display */
 .repl-history {
-  height: 55vh;
-  margin: auto;
-  display: block;
-  overflow: scroll;
+  height: 60vh; /* Height of 60% of the viewport height */
+  margin: 1rem auto; /* Margins for vertical spacing and horizontal centering */
+  overflow: scroll; /* Enables scrolling if content overflows */
+  background-color: #fff; /* White background color */
+  border: 2px dashed #ff66cc; /* Dashed border style */
+  border-radius: 8px; /* Rounded corners */
+  padding: 1rem; /* Padding inside the REPL history box */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect for a lifted look */
 }
 
+/* Styles for the REPL input box */
 .repl-input {
-  margin: auto;
-  height: 10vh;
-}
-.repl-command-box {
-  width: 90%;
-  margin: auto;
-  display: block;
-}
-button {
-  margin: auto;
-  display: block;
+  margin: auto; /* Center the element horizontally */
+  height: 10vh; /* Height of 10% of the viewport height */
 }
 
+/* Styles for the command input box within the REPL */
+.repl-command-box {
+  width: 90%; /* Width set to 90% of its container */
+  margin: auto; /* Center the element horizontally */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Slightly transparent white background */
+  border: 2px solid #ff66cc; /* Pink border */
+  padding: 0.5rem; /* Padding inside the command box */
+}
+
+/* Button Styling */
+
+/* General styles for button elements */
+button {
+  margin: 1rem auto; /* Margins for vertical spacing and horizontal centering */
+  background-color: #ff88cc; /* pink background color */
+  color: white; /* Text color for the button */
+  border: none; /* No border for the button */
+  border-radius: 8px; /* Rounded corners */
+  padding: 0.5rem 1rem; /* Padding inside the button */
+  cursor: pointer; /* Cursor changes to a hand when hovered over */
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transitions for background color and scaling on hover */
+  box-shadow: 0 0 20px rgba(255, 136, 204, 0.6); /* Pink glow around the button */
+}
+
+/* Styles for button elements when hovered over */
+button:hover {
+  background-color: #ff66aa; /* Darker pink background on hover */
+  transform: scale(1.05); /* Slightly scale up the button when hovered */
+}
+
+/* Utility Class */
+
+/* Class to horizontally center table elements */
 .centered-table {
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: auto; /* Left margin set to auto */
+  margin-right: auto; /* Right margin set to auto */
 }

@@ -1,14 +1,33 @@
+/* .App Styles */
+
+/* Center aligns text for any element with the class .App. 
+   This is typically the root container of the React app. */
 .App {
   text-align: center;
+  font-family: "Trebuchet MS", sans-serif; /* Sets a font. */
 }
 
+/* Styles specific to the header of the app. */
 .App-header {
-  background-color: #282c34;
-  min-height: 8vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(1px + 2vmin);
-  color: white;
+  background-color: black; /* Sets a bright pastel pink background for the header. */
+  min-height: 8vh; /* Minimum height for the header. */
+  display: flex; /* Makes the header a flex container. */
+  flex-direction: column; /* Stacks children of the header vertically. */
+  align-items: center; /* Center-aligns children horizontally. */
+  justify-content: center; /* Center-aligns children vertically. */
+  font-size: calc(1px + 2vmin); /* Makes the font size responsive. */
+  color: white; /* Sets the text color of the header. */
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out; /* Adds a smooth transition effect for background color and scaling. */
+  cursor: pointer; /* Changes cursor to indicate the header is clickable. */
+  border: 2px solid #ffccff; /* Adds a shiny border to the header. */
+  box-shadow: 0 0 20px rgba(255, 136, 204, 0.6); /* Adds a pink glow effect around the header. */
+}
+
+/* Enhances the header with additional styles when hovered. */
+.App-header:hover {
+  background-color: #ff66aa; /* Darkens the header color to a deeper pink when hovered. */
+  color: white; /* Ensures text remains white when the header is hovered. */
+  transform: scale(
+    1.05
+  ); /* Enlarges (scales) the header slightly when hovered for a playful effect. */
 }

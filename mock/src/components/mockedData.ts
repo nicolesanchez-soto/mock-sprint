@@ -1,3 +1,8 @@
+/**
+ * Mocked data representing a CSV about students and their courses.
+ * This dataset contains information about a person's name, the course they're associated with,
+ * and their role (either a student or an instructor).
+ */
 let parsedCSV: string[][] = [
   ["Name", "Course", "Role"],
   ["Nim Telson", "CSCI 0320", "student"],
@@ -5,6 +10,10 @@ let parsedCSV: string[][] = [
   ["Vicky Chen", "CSCI 0200", "student"],
 ];
 
+/**
+ * Mocked data representing a CSV about counties in the state of California.
+ * This dataset contains the name of the county, its associated state code, and county code.
+ */
 let parsedCSV2: string[][] = [
   ["NAME", "STATE", "COUNTY"],
   ["Kings County, California", "06", "031"],
@@ -17,7 +26,11 @@ let parsedCSV2: string[][] = [
   ["Santa Barbara County, California", "06", "083"],
 ];
 
+/**
+ * Mocked data representing a CSV with one column.
+ * This dataset contains names.
+ */
 let oneColumn: string[][] = [["Name"], ["Vicky"], ["Nicole"]];
-export { oneColumn };
-export { parsedCSV };
-export { parsedCSV2 };
+
+// Exporting the datasets for external usage.
+export { oneColumn, parsedCSV, parsedCSV2 };
