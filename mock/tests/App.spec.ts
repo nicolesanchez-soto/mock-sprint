@@ -14,12 +14,6 @@ test.beforeEach(() => {
   // TODO: Is there something we need to do before every test case to avoid repeating code?
 });
 
-/**
- * Don't worry about the "async" yet. We'll cover it in more detail
- * for the next sprint. For now, just think about "await" as something
- * you put before parts of your test that might take time to run,
- * like any interaction with the page.
- */
 test("on page load, i see an input bar", async ({ page }) => {
   // Notice: http, not https! Our front-end is not set up for HTTPs.
   await page.goto("http://localhost:8000/");
@@ -244,5 +238,100 @@ test("unknown command gives feedback", async ({ page }) => {
   await page.locator('button[test-id="button"]').click();
   await expect(page.getByTestId("repl-history")).toHaveText(
     "Command not found."
+  );
+});
+
+test("single column CSV can be loaded and searched", async ({ page }) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("load_file one_column.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("search Name Nicole");
+  await expect(page.getByTestId("repl-history")).toHaveText(
+    "Loaded data from one_column.csv"
+  );
+  await expect(page.getByTestId("output-table")).toBeVisible;
+});
+
+test("search with 'Name Tim' should return matching rows", async ({ page }) => {
+  await page.goto("http://localhost:8000/"); // Load data and switch to verbose mode
+
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click(); // Search for 'Name Tim' and check for matching rows
+
+  await page.getByLabel("Command input").fill("search Name Tim");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toContainText(
+    "Loaded data from simple.csvSwitched to verbose modeCommand: search Name TimOutput: NameCourseRoleTim NelsonCSCI 0320instructor"
+  );
+});
+
+test("a search that returns multiple rows should give a table with multiple rows", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click(); // Search for 'Name Tim' and check for matching rows
+  await page.getByLabel("Command input").fill("search 1 CSCI 0320");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toContainText(
+    "Loaded data from simple.csvNameCourseRoleTim NelsonCSCI 0320instructorNim TelsonCSCI 0320student"
+  );
+  await expect(page.getByTestId("output-table")).toBeVisible;
+});
+
+test("search with 'NAME Kings County, California' should return matching rows", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/"); // Load data and switch to verbose mode
+
+  await page.getByLabel("Command input").fill("load_file ri_state_county.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click(); // Search for 'NAME Kings County, California' and check for matching rows
+
+  await page
+    .getByLabel("Command input")
+    .fill("search NAME Kings County, California");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toContainText(
+    "Loaded data from ri_state_county.csvSwitched to verbose modeCommand: search NAME Kings County, CaliforniaOutput: NAMESTATECOUNTYKings County California06031"
+  );
+});
+
+test("search for a non-existent name in verbose mode should provide appropriate feedback", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/"); // Load data and switch to verbose mode
+
+  await page.getByLabel("Command input").fill("load_file simple.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click(); // Search for a name that does not exist in the data
+
+  await page.getByLabel("Command input").fill("search Nonexistent Name");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toContainText(
+    "Loaded data from simple.csvSwitched to verbose modeCommand: search Nonexistent NameOutput: No matching rows found"
+  );
+});
+
+test("search with '0 Los Angeles County, California' should provide feedback about an invalid column identifier", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000/"); // Load data and switch to verbose mode
+
+  await page.getByLabel("Command input").fill("load_file ri_state_county.csv");
+  await page.locator('button[test-id="button"]').click();
+  await page.getByLabel("Command input").fill("mode");
+  await page.locator('button[test-id="button"]').click(); // Search with an invalid column identifier
+
+  await page
+    .getByLabel("Command input")
+    .fill("search 0 Los Angeles County, California");
+  await page.locator('button[test-id="button"]').click();
+  await expect(page.getByTestId("repl-history")).toContainText(
+    "Loaded data from ri_state_county.csvSwitched to verbose modeCommand: search 0 Los Angeles County, CaliforniaOutput: NAMESTATECOUNTYLos Angeles County California06037"
   );
 });

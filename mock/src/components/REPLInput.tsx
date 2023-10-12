@@ -2,8 +2,7 @@ import "../styles/main.css";
 import { useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { cmds } from "./mockedJson";
-import { parsedCSV } from "./mockedData";
-import { parsedCSV2 } from "./mockedRIData";
+import { parsedCSV, parsedCSV2, oneColumn } from "./mockedData";
 
 interface REPLInputProps {
   addToHistory: (command: JSX.Element) => void;
@@ -13,6 +12,7 @@ let brief: boolean = true;
 const dataMap = new Map([
   ["simple.csv", parsedCSV],
   ["ri_state_county.csv", parsedCSV2],
+  ["one_column.csv", oneColumn],
 ]);
 
 let currentData: string[][] | null = null;
@@ -25,6 +25,13 @@ const resultsMap: Map<string, string[][]> = new Map([
   ["9 Vicky", [["0"]]], // use 0 to indicate invalid column identifier
   ["Nonexistent", [[""]]],
   ["1 Nonexistent", [[""]]],
+  [
+    "1 CSCI 0320",
+    [
+      ["Tim Nelson", "CSCI 0320", "instructor"],
+      ["Nim Telson", "CSCI 0320", "student"],
+    ],
+  ],
 ]);
 
 const resultsMap2: Map<string, string[][]> = new Map([
@@ -36,6 +43,12 @@ const resultsMap2: Map<string, string[][]> = new Map([
   ["6 Los Angeles County, California", [["0"]]], // use 0 to indicate invalid column identifier
   ["Nonexistent", [[""]]],
   ["1 Nonexistent", [[""]]],
+]);
+
+const resultsMap3: Map<string, string[][]> = new Map([
+  ["Vicky", [["Vicky"]]],
+  ["Name Nicole", [["Nicole"]]],
+  ["0 Nicole", [["Nicole"]]],
 ]);
 
 export function REPLInput(props: REPLInputProps) {
@@ -55,6 +68,8 @@ export function REPLInput(props: REPLInputProps) {
           currentResultsMap = resultsMap;
         } else if (path === "ri_state_county.csv") {
           currentResultsMap = resultsMap2;
+        } else if (path === "one_column.csv") {
+          currentResultsMap = resultsMap3;
         }
       }
       console.log(currentResultsMap);
